@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Tutorial.Web.Models;
+using Tutorial.Web.Services;
 
 namespace Tutorial.Web
 {
@@ -21,7 +24,7 @@ namespace Tutorial.Web
 		public IConfiguration Configuration { get; }
 
 		// This method gets called by the runtime. Use this method to add services to the container.
-		public void ConfigureServices(IServiceCollection services)
+		public void ConfigureServices(IServiceCollection services) //注册服务
 		{
 			services.Configure<CookiePolicyOptions>(options =>
 			{
@@ -32,10 +35,16 @@ namespace Tutorial.Web
 
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+			services.AddScoped<IRepository<Student>, InMemoryRepository>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+		public void Configure(
+			IApplicationBuilder app,
+			IHostingEnvironment env,
+			IConfiguration configuration,
+			ILogger<Startup> logger) //HTTP请求处理管道,管道是双向的
 		{
 			if (env.IsDevelopment())
 			{
@@ -46,15 +55,22 @@ namespace Tutorial.Web
 				app.UseExceptionHandler("/Home/Error");
 			}
 
+			//app.UseFileServer();
+			//app.UseDefaultFiles();
+			//app.UseMvcWithDefaultRoute();
 			app.UseStaticFiles();
 			app.UseCookiePolicy();
 
 			app.UseMvc(routes =>
 			{
-				routes.MapRoute(
-					name: "default",
-					template: "{controller=Home}/{action=Index}/{id?}");
+				routes.MapRoute("default", "{controller=Home}/{action=Index}/{id?}");
 			});
+
+			//app.Run(async (context) =>
+			//{
+			//	var welcome = configuration["Welcome"];
+			//	await context.Response.WriteAsync(welcome);
+			//});
 		}
 	}
 }

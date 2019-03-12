@@ -5,14 +5,23 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tutorial.Web.Models;
+using Tutorial.Web.Services;
 
 namespace Tutorial.Web.Controllers
 {
 	public class HomeController : Controller
 	{
+		private readonly IRepository<Student> _repository;
+
+		public HomeController(IRepository<Student> repository)
+		{
+			_repository = repository;
+		}
+
 		public IActionResult Index()
 		{
-			return View();
+			var list = _repository.GetAll();
+			return View(list);
 		}
 
 		public IActionResult About()
